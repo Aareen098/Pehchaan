@@ -1,0 +1,304 @@
+.pageContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface);
+  color: var(--on-surface);
+}
+
+.header {
+  width: 100%;
+  height: 4rem;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 1024px) {
+  .header {
+    justify-content: flex-start;
+  }
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logoIcon {
+  color: var(--primary);
+  font-size: 1.875rem;
+}
+
+.logoText {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--primary);
+}
+
+.mainContent {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.registerWrapper {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 12px 32px rgba(25, 28, 29, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cardTitle {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: -0.025em;
+}
+
+.cardSubtitle {
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  padding: 0 0.25rem;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--outline);
+  font-size: 1.125rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 3rem;
+  padding-left: 2.5rem;
+  padding-right: 1rem;
+  background-color: var(--surface-container-low);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--on-surface);
+  transition: all 0.2s;
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgba(114, 119, 133, 0.6); /* outline/60 */
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px var(--primary-container);
+}
+
+.hintText {
+  font-size: 0.7rem;
+  color: var(--outline);
+  padding: 0 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.termsWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.checkbox {
+  margin-top: 0.25rem;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--outline-variant);
+  accent-color: var(--primary);
+}
+
+.termsLabel {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  line-height: 1.6;
+}
+
+.link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, #005bbf 0%, #1a73e8 100%);
+  width: 100%;
+  height: 3rem;
+  color: var(--on-primary);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  transition: transform 0.15s;
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.submitIcon {
+  font-size: 1.25rem;
+}
+
+.loginPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--outline-variant);
+  opacity: 0.2;
+}
+
+.loginText {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+}
+
+.loginLink {
+  color: var(--primary);
+  font-weight: 700;
+  margin-left: 0.25rem;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.securityBadge {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--outline);
+  opacity: 0.7;
+}
+
+.badgeIcon {
+  font-size: 1.125rem;
+}
+
+.badgeText {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.footer {
+  padding: 2rem;
+  display: none;
+}
+@media (min-width: 768px) {
+  .footer {
+    display: block;
+  }
+}
+
+.footerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.brandRule {
+  width: 3rem;
+  height: 0.25rem;
+  background-color: var(--primary);
+  border-radius: 9999px;
+}
+
+.brandText {
+  font-size: 0.65rem;
+  color: var(--outline);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footerLinks {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--outline);
+}
+
+.footerLink {
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  color: var(--primary);
+}
