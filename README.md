@@ -145,4 +145,5 @@ This project is developed for educational, research, and learning purposes.
 
 
 Developers
+
 Simran Kaur, Aareen Anand, Rohit Reji
