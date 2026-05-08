@@ -1,4 +1,5 @@
 🗳️ Pehchaan – Smart Voter Verification System
+
 📌 Project Overview
 Pehchaan is a full-stack Smart Voter Verification System developed to modernize and secure the voter registration and verification process. The platform uses Machine Learning algorithms to validate voter information, detect duplicate or suspicious records, and ensure accurate identity verification through Aadhaar and Voter ID matching.
 The system integrates a modern React-based frontend, a scalable Node.js & Express backend, MongoDB for data management, and a Python FastAPI ML service for intelligent verification and fraud detection.
@@ -79,9 +80,13 @@ Scikit-learn
 
 
 📂 Project Architecture
-Pehchaan/│├── frontend/        # React Frontend Application├── backend/         # Node.js & Express REST APIs├── ml-service/      # FastAPI Machine Learning Service├── database/        # Master Registry & Verification Data└── README.md
+Pehchaan/│├── frontend/        # React Frontend Application├── backend/ 
+# Node.js & Express REST APIs├── ml-service/  
+# FastAPI Machine Learning Service├── database/
+# Master Registry & Verification Data└── README.md
 
 ⚙️ Installation & Setup
+
 1️⃣ Clone the Repository
 git clone <repository-url>cd Pehchaan
 
@@ -95,7 +100,11 @@ cd backendnpm installnpm start
 cd ml-servicepip install -r requirements.txtuvicorn app:app --reload
 
 🔗 API Endpoints
-MethodEndpointDescriptionPOST/auth/registerRegister New UserPOST/auth/loginUser LoginPOST/verifyVerify Voter DetailsGET/votersFetch Verified Voter Records
+Method  Endpoint        Description 
+POST    /auth/register  Register New User
+POST    /auth/loginUser Login
+POST    /verify         Verify Voter Details
+GET     /votersFetch    Verified Voter Records
 
 🎯 Objectives
 
@@ -136,4 +145,5 @@ This project is developed for educational, research, and learning purposes.
 
 
 Developers
+
 Simran Kaur, Aareen Anand, Rohit Reji
