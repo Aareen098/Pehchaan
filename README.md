@@ -1,4 +1,5 @@
 🗳️ Pehchaan – Smart Voter Verification System
+
 📌 Project Overview
 Pehchaan is a full-stack Smart Voter Verification System developed to modernize and secure the voter registration and verification process. The platform uses Machine Learning algorithms to validate voter information, detect duplicate or suspicious records, and ensure accurate identity verification through Aadhaar and Voter ID matching.
 The system integrates a modern React-based frontend, a scalable Node.js & Express backend, MongoDB for data management, and a Python FastAPI ML service for intelligent verification and fraud detection.
