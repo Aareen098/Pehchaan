@@ -1,7 +1,20 @@
+// src/services/api.js
+
 import axios from "axios";
 
+
+// =====================================
+// AXIOS INSTANCE
+// =====================================
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL:
+    "http://localhost:5000/api",
+
+  headers: {
+    "Content-Type":
+      "application/json",
+  },
 });
 
 
@@ -9,75 +22,219 @@ const API = axios.create({
 // AUTO ADD TOKEN TO EVERY REQUEST
 // =====================================
 
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
+API.interceptors.request.use(
+  (req) => {
+    const token =
+      localStorage.getItem(
+        "token"
+      );
 
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      req.headers.Authorization =
+        `Bearer ${token}`;
+    }
+
+    return req;
+  },
+
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  return req;
-});
+
+// =====================================
+// GLOBAL RESPONSE HANDLER
+// =====================================
+
+API.interceptors.response.use(
+  (response) => response,
+
+  (error) => {
+    // Unauthorized
+    if (
+      error.response?.status ===
+      401
+    ) {
+      console.log(
+        "Unauthorized Access"
+      );
+    }
+
+    // Forbidden
+    if (
+      error.response?.status ===
+      403
+    ) {
+      console.log(
+        "Access Denied"
+      );
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 
 // =====================================
 // AUTH APIs
 // =====================================
 
-// Login
-export const loginUser = (formData) =>
-  API.post("/auth/login", formData);
+// LOGIN
 
-// Register
-export const registerUser = (formData) =>
-  API.post("/auth/register", formData);
+export const loginUser = (
+  formData
+) =>
+  API.post(
+    "/auth/login",
+    formData
+  );
+
+// REGISTER
+
+export const registerUser = (
+  formData
+) =>
+  API.post(
+    "/auth/register",
+    formData
+  );
 
 
 // =====================================
 // USER APIs
 // =====================================
 
-// Submit voter form
-export const createVoter = (formData) =>
-  API.post("/voter", formData);
+// CREATE VOTER
 
-// Get logged-in user's voter details
+export const createVoter = (
+  formData
+) =>
+  API.post(
+    "/voter",
+    formData
+  );
+
+// GET MY VOTER
+
 export const getMyVoter = () =>
   API.get("/voter/me");
 
+// GET ALL VOTERS
 
-// =====================================
-// ADMIN APIs
-// =====================================
+export const getAllVoters =
+  () => API.get("/voter/all");
 
-// Dashboard Stats
-export const getDashboardStats = () =>
-  API.get("/admin/dashboard");
+// GET SINGLE VOTER
 
-// Suspicious Voters
-export const getSuspiciousVoters = () =>
-  API.get("/admin/suspicious");
-
-// Review Required
-export const getReviewVoters = () =>
-  API.get("/admin/review");
-
-// Verified Voters
-export const getVerifiedVoters = () =>
-  API.get("/admin/verified");
-
-// Manual Override
-export const manualVerify = (id, classification) =>
-  API.put(`/admin/manual-verify/${id}`, {
-    classification,
-  });
-
-// Get ALL voters
-export const getAllVoters = () =>
-  API.get("/voter/all");
-
-// Get single voter by ID
-export const getSingleVoter = (id) =>
+export const getSingleVoter = (
+  id
+) =>
   API.get(`/voter/${id}`);
+
+
+// =====================================
+// ADMIN DASHBOARD APIs
+// =====================================
+
+// DASHBOARD STATS
+
+export const getDashboardStats =
+  () =>
+    API.get(
+      "/admin/dashboard"
+    );
+
+
+// =====================================
+// ADMIN CASE APIs
+// =====================================
+
+// GET ALL ACTIVE CASES
+
+export const getAllCases =
+  () =>
+    API.get("/admin/cases");
+
+// GET SUSPICIOUS CASES
+
+export const getSuspiciousVoters =
+  () =>
+    API.get(
+      "/admin/suspicious"
+    );
+
+// GET REVIEW CASES
+
+export const getReviewVoters =
+  () =>
+    API.get(
+      "/admin/review"
+    );
+
+// GET VERIFIED VOTERS
+
+export const getVerifiedVoters =
+  () =>
+    API.get(
+      "/admin/verified"
+    );
+
+// GET SINGLE CASE DETAILS
+
+export const getSingleCase = (
+  voterId
+) =>
+  API.get(
+    `/admin/case/${voterId}`
+  );
+
+// SEARCH CASES
+
+export const searchCases = (
+  query
+) =>
+  API.get(
+    `/admin/search?q=${query}`
+  );
+
+
+// =====================================
+// ADMIN REVIEW APIs
+// =====================================
+
+// APPROVE / REJECT CASE
+
+export const reviewVoterCase =
+  (
+    voterId,
+    data
+  ) =>
+    API.put(
+      `/admin/review/${voterId}`,
+      data
+    );
+
+
+// =====================================
+// LEGACY MANUAL VERIFY
+// OPTIONAL
+// =====================================
+
+export const manualVerify = (
+  id,
+  classification
+) =>
+  API.put(
+    `/admin/manual-verify/${id}`,
+    {
+      classification,
+    }
+  );
+
+
+// =====================================
+// EXPORT AXIOS INSTANCE
+// =====================================
 
 export default API;

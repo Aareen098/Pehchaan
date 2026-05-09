@@ -13,7 +13,7 @@ const MasterRegistry = require("../models/MasterRegistry");
 const formatDOB = (dob) => {
   if (!dob) return dob;
 
-  // Already in yyyy-mm-dd format
+  // already formatted
   if (dob.includes("-")) {
     return dob;
   }
@@ -36,6 +36,7 @@ const formatDOB = (dob) => {
 
 const isAdult = (dob) => {
   const birthDate = new Date(dob);
+
   const today = new Date();
 
   let age =
@@ -50,7 +51,8 @@ const isAdult = (dob) => {
     monthDiff < 0 ||
     (
       monthDiff === 0 &&
-      today.getDate() < birthDate.getDate()
+      today.getDate() <
+        birthDate.getDate()
     )
   ) {
     age--;
@@ -61,11 +63,156 @@ const isAdult = (dob) => {
 
 
 // ========================================
-// CREATE VOTER
-// USER FORM → MASTER REGISTRY → ML VERIFY
+// GENERATE DISCREPANCIES
 // ========================================
 
-exports.createVoter = async (req, res) => {
+const generateDiscrepancies = (
+  similarity
+) => {
+  const discrepancies = [];
+
+  if (
+    (similarity.name_sim || 0) <
+    80
+  ) {
+    discrepancies.push(
+      "Name Mismatch"
+    );
+  }
+
+  if (
+    (similarity.dob_sim || 0) <
+    80
+  ) {
+    discrepancies.push(
+      "DOB Mismatch"
+    );
+  }
+
+  if (
+    (similarity.addr_sim || 0) <
+    80
+  ) {
+    discrepancies.push(
+      "Address Mismatch"
+    );
+  }
+
+  if (
+    (similarity.aadhaar_sim || 0) <
+    100
+  ) {
+    discrepancies.push(
+      "Aadhaar Mismatch"
+    );
+  }
+
+  if (
+    (similarity.id_sim || 0) <
+    100
+  ) {
+    discrepancies.push(
+      "Voter ID Mismatch"
+    );
+  }
+
+  return discrepancies;
+};
+
+
+// ========================================
+// GENERATE COMPARISON TABLE
+// ========================================
+
+const generateComparisonData = ({
+  submitted,
+  officialRecord,
+  similarity,
+}) => {
+  return [
+    {
+      field: "Name",
+
+      submitted:
+        submitted.name,
+
+      system:
+        officialRecord.name,
+
+      mismatch:
+        (similarity.name_sim ||
+          0) < 80,
+    },
+
+    {
+      field: "DOB",
+
+      submitted:
+        submitted.dob,
+
+      system:
+        officialRecord.dob,
+
+      mismatch:
+        (similarity.dob_sim ||
+          0) < 80,
+    },
+
+    {
+      field: "Address",
+
+      submitted:
+        submitted.address,
+
+      system:
+        officialRecord.address,
+
+      mismatch:
+        (similarity.addr_sim ||
+          0) < 80,
+    },
+
+    {
+      field: "Aadhaar",
+
+      submitted:
+        submitted.aadhaar,
+
+      system:
+        officialRecord.aadhaar,
+
+      mismatch:
+        (
+          similarity.aadhaar_sim ||
+          0
+        ) < 100,
+    },
+
+    {
+      field: "Voter ID",
+
+      submitted:
+        submitted.voterId,
+
+      system:
+        officialRecord.voterId,
+
+      mismatch:
+        (similarity.id_sim ||
+          0) < 100,
+    },
+  ];
+};
+
+
+// ========================================
+// CREATE VOTER
+// ========================================
+
+exports.createVoter = async (
+  req,
+  res
+) => {
   try {
     const {
       name,
@@ -77,14 +224,22 @@ exports.createVoter = async (req, res) => {
       city,
     } = req.body;
 
-    // 🔥 LOG USER DATA FROM FRONTEND
-console.log("====================================");
-console.log("📥 USER SUBMITTED DATA:");
-console.log(req.body);
-console.log("====================================");
+    console.log(
+      "===================================="
+    );
+
+    console.log(
+      "📥 USER SUBMITTED DATA:"
+    );
+
+    console.log(req.body);
+
+    console.log(
+      "===================================="
+    );
 
     // =====================================
-    // REQUIRED FIELD VALIDATION
+    // VALIDATION
     // =====================================
 
     if (
@@ -98,7 +253,9 @@ console.log("====================================");
     ) {
       return res.status(400).json({
         success: false,
-        message: "Please fill all required fields",
+
+        message:
+          "Please fill all required fields",
       });
     }
 
@@ -106,18 +263,22 @@ console.log("====================================");
     // FORMAT DOB
     // =====================================
 
-    const formattedDOB = formatDOB(dob);
+    const formattedDOB =
+      formatDOB(dob);
 
     // =====================================
     // AGE CHECK
     // =====================================
 
-    const adultStatus = isAdult(formattedDOB);
+    const adultStatus =
+      isAdult(formattedDOB);
 
     if (!adultStatus) {
       return res.status(400).json({
         success: false,
-        message: "User must be 18+ to register as voter",
+
+        message:
+          "User must be 18+ to register as voter",
       });
     }
 
@@ -125,149 +286,359 @@ console.log("====================================");
     // PREVENT MULTIPLE SUBMISSIONS
     // =====================================
 
-    const alreadySubmitted = await Voter.findOne({
-      userId: req.user.id,
-    });
+    const alreadySubmitted =
+      await Voter.findOne({
+        userId: req.user.id,
+      });
 
     if (alreadySubmitted) {
       return res.status(400).json({
         success: false,
+
         message:
           "You have already submitted voter details",
       });
     }
 
     // =====================================
-    // FIND MATCHING MASTER REGISTRY RECORD
+    // FIND MASTER RECORD
     // =====================================
 
     const officialRecord =
-      await MasterRegistry.findOne({
-        $or: [
-          { aadhaar },
-          { voterId },
-        ],
-      });
+      await MasterRegistry.findOne(
+        {
+          $or: [
+            { aadhaar },
+            { voterId },
+          ],
+        }
+      );
 
     if (!officialRecord) {
       return res.status(404).json({
         success: false,
+
         message:
           "No matching record found in Master Registry",
       });
     }
 
     // =====================================
-    // SEND FORM DATA + DB DATA TO ML
+    // DEFAULT VALUES
     // =====================================
 
-    let classification = "Pending";
+    let classification =
+      "Pending";
+
     let isVerified = false;
+
     let conflictScore = 0;
+
     let similarity = {};
 
-    console.log("🚀 DATA SENT TO ML:");
-console.log({
-  user: { name, dob: formattedDOB, aadhaar, voter_id: voterId, address, state, city },
-  record: officialRecord
-});
+    let discrepancies = [];
+
+    let comparisonData = [];
+
+    // =====================================
+    // SEND DATA TO ML
+    // =====================================
 
     try {
-      const mlResponse = await axios.post(
-        "http://localhost:8000/verify",
-        {
-          user: {
-            name,
-            dob: formattedDOB,
-            aadhaar,
-            voter_id: voterId,
-            address,
-            state,
-            city,
-          },
-
-          record: {
-            name: officialRecord.name,
-            dob: officialRecord.dob,
-            aadhaar: officialRecord.aadhaar,
-            voter_id: officialRecord.voterId,
-            address: officialRecord.address,
-            state: officialRecord.state,
-            city: officialRecord.city,
-          },
-        },
-        {
-          timeout: 10000,
-        }
+      console.log(
+        "🚀 DATA SENT TO ML:"
       );
 
-      classification =
-        mlResponse.data.status || "Pending";
+      console.log({
+        user: {
+          name,
 
-      isVerified =
-        classification === "Verified";
+          dob: formattedDOB,
+
+          aadhaar,
+
+          voter_id: voterId,
+
+          address,
+
+          state,
+
+          city,
+        },
+
+        record: {
+          name:
+            officialRecord.name,
+
+          dob:
+            officialRecord.dob,
+
+          aadhaar:
+            officialRecord.aadhaar,
+
+          voter_id:
+            officialRecord.voterId,
+
+          address:
+            officialRecord.address,
+
+          state:
+            officialRecord.state,
+
+          city:
+            officialRecord.city,
+        },
+      });
+
+      const mlResponse =
+        await axios.post(
+          "http://localhost:8000/verify",
+          {
+            user: {
+              name,
+
+              dob:
+                formattedDOB,
+
+              aadhaar,
+
+              voter_id:
+                voterId,
+
+              address,
+
+              state,
+
+              city,
+            },
+
+            record: {
+              name:
+                officialRecord.name,
+
+              dob:
+                officialRecord.dob,
+
+              aadhaar:
+                officialRecord.aadhaar,
+
+              voter_id:
+                officialRecord.voterId,
+
+              address:
+                officialRecord.address,
+
+              state:
+                officialRecord.state,
+
+              city:
+                officialRecord.city,
+            },
+          },
+
+          {
+            timeout: 10000,
+          }
+        );
+
+      console.log(
+        "✅ ML RESPONSE:"
+      );
+
+      console.log(
+        mlResponse.data
+      );
+
+      // =====================================
+      // GET ML VALUES
+      // =====================================
 
       conflictScore =
-        mlResponse.data.conflictScore || 0;
+        Number(
+          mlResponse.data
+            .conflictScore
+        ) || 0;
 
       similarity =
-        mlResponse.data.features || {};
+        mlResponse.data
+          .features || {};
 
-        console.log("✅ ML RESPONSE:");
-console.log(mlResponse.data);
+      // =====================================
+      // USE ML CLASSIFICATION
+      // =====================================
+
+      const rawStatus =
+        (
+          mlResponse.data
+            .status || "Pending"
+        ).toLowerCase();
+
+      if (
+        rawStatus ===
+        "verified"
+      ) {
+        classification =
+          "Verified";
+      }
+
+      else if (
+        rawStatus ===
+        "suspicious"
+      ) {
+        classification =
+          "Suspicious";
+      }
+
+      else if (
+        rawStatus ===
+        "review"
+      ) {
+        classification =
+          "Review";
+      }
+
+      else {
+        classification =
+          "Pending";
+      }
+
+      // =====================================
+      // VERIFIED STATUS
+      // =====================================
+
+      isVerified =
+        classification ===
+        "Verified";
+
+      // =====================================
+      // GENERATE DISCREPANCIES
+      // =====================================
+
+      discrepancies =
+        generateDiscrepancies(
+          similarity
+        );
+
+      // =====================================
+      // GENERATE COMPARISON DATA
+      // =====================================
+
+      comparisonData =
+        generateComparisonData({
+          submitted: {
+            name,
+
+            dob:
+              formattedDOB,
+
+            aadhaar,
+
+            voterId,
+
+            address,
+          },
+
+          officialRecord,
+
+          similarity,
+        });
 
     } catch (mlError) {
       console.log(
-        "ML Verification Error:",
+        "ML Verification Error:"
+      );
+
+      console.log(
         mlError.message
       );
 
-      classification = "Pending";
+      classification =
+        "Pending";
+
       isVerified = false;
+
       conflictScore = 0;
+
       similarity = {};
+
+      discrepancies = [
+        "ML Verification Failed",
+      ];
+
+      comparisonData = [];
     }
 
     // =====================================
-    // SAVE FINAL RESULT IN DB
+    // SAVE VOTER
     // =====================================
 
-    const voter = await Voter.create({
-      userId: req.user.id,
+    const voter =
+      await Voter.create({
+        userId: req.user.id,
 
-      name,
-      dob: formattedDOB,
-      aadhaar,
-      voterId,
-      address,
-      state,
-      city,
+        name,
 
-      isAdult: adultStatus,
+        dob: formattedDOB,
 
-      classification,
-      isVerified,
-      conflictScore,
+        aadhaar,
 
-      similarity: {
-        name: similarity.name_sim || 0,
-        dob: similarity.dob_sim || 0,
-        address: similarity.addr_sim || 0,
-        aadhaar: similarity.aadhaar_sim || 0,
-        voterId: similarity.id_sim || 0,
-      },
+        voterId,
 
-      masterRegistryId: officialRecord._id,
-    });
+        address,
+
+        state,
+
+        city,
+
+        isAdult:
+          adultStatus,
+
+        classification,
+
+        isVerified,
+
+        conflictScore,
+
+        similarity: {
+          name:
+            similarity.name_sim ||
+            0,
+
+          dob:
+            similarity.dob_sim ||
+            0,
+
+          address:
+            similarity.addr_sim ||
+            0,
+
+          aadhaar:
+            similarity.aadhaar_sim ||
+            0,
+
+          voterId:
+            similarity.id_sim ||
+            0,
+        },
+
+        discrepancies,
+
+        comparisonData,
+
+        masterRegistryId:
+          officialRecord._id,
+      });
 
     // =====================================
-    // RESPONSE TO FRONTEND
+    // RESPONSE
     // =====================================
 
     return res.status(201).json({
       success: true,
+
       message:
-        "Voter verified successfully and saved",
+        "Voter verification completed successfully",
+
       voter,
     });
 
@@ -276,7 +647,9 @@ console.log(mlResponse.data);
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };
@@ -286,31 +659,45 @@ console.log(mlResponse.data);
 // GET MY VOTER
 // ========================================
 
-exports.getMyVoter = async (req, res) => {
+exports.getMyVoter = async (
+  req,
+  res
+) => {
   try {
-    const voter = await Voter.findOne({
-      userId: req.user.id,
-    }).populate(
-      "masterRegistryId",
-      "name aadhaar voterId"
-    );
+    const voter =
+      await Voter.findOne({
+        userId: req.user.id,
+      })
+        .populate(
+          "masterRegistryId",
+          "name aadhaar voterId"
+        )
+        .populate(
+          "verifiedBy",
+          "name email"
+        );
 
     if (!voter) {
       return res.status(404).json({
         success: false,
-        message: "No voter record found",
+
+        message:
+          "No voter record found",
       });
     }
 
     return res.status(200).json({
       success: true,
+
       voter,
     });
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };
@@ -320,31 +707,44 @@ exports.getMyVoter = async (req, res) => {
 // GET ALL VOTERS (ADMIN)
 // ========================================
 
-exports.getAllVoters = async (req, res) => {
+exports.getAllVoters = async (
+  req,
+  res
+) => {
   try {
-    const voters = await Voter.find()
-      .populate(
-        "userId",
-        "name email state city"
-      )
-      .populate(
-        "masterRegistryId",
-        "name aadhaar voterId"
-      )
-      .sort({
-        createdAt: -1,
-      });
+    const voters =
+      await Voter.find()
+        .populate(
+          "userId",
+          "name email"
+        )
+        .populate(
+          "verifiedBy",
+          "name email"
+        )
+        .populate(
+          "masterRegistryId",
+          "name aadhaar voterId"
+        )
+        .sort({
+          createdAt: -1,
+        });
 
     return res.status(200).json({
       success: true,
-      count: voters.length,
+
+      count:
+        voters.length,
+
       voters,
     });
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };
@@ -354,36 +754,49 @@ exports.getAllVoters = async (req, res) => {
 // GET SINGLE VOTER (ADMIN)
 // ========================================
 
-exports.getVoterById = async (req, res) => {
+exports.getVoterById = async (
+  req,
+  res
+) => {
   try {
-    const voter = await Voter.findById(
-      req.params.id
-    )
-      .populate(
-        "userId",
-        "name email state city"
+    const voter =
+      await Voter.findById(
+        req.params.id
       )
-      .populate(
-        "masterRegistryId",
-        "name aadhaar voterId"
-      );
+        .populate(
+          "userId",
+          "name email"
+        )
+        .populate(
+          "verifiedBy",
+          "name email"
+        )
+        .populate(
+          "masterRegistryId",
+          "name aadhaar voterId"
+        );
 
     if (!voter) {
       return res.status(404).json({
         success: false,
-        message: "Voter not found",
+
+        message:
+          "Voter not found",
       });
     }
 
     return res.status(200).json({
       success: true,
+
       voter,
     });
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };
@@ -393,16 +806,22 @@ exports.getVoterById = async (req, res) => {
 // DELETE VOTER (ADMIN)
 // ========================================
 
-exports.deleteVoter = async (req, res) => {
+exports.deleteVoter = async (
+  req,
+  res
+) => {
   try {
-    const voter = await Voter.findById(
-      req.params.id
-    );
+    const voter =
+      await Voter.findById(
+        req.params.id
+      );
 
     if (!voter) {
       return res.status(404).json({
         success: false,
-        message: "Voter not found",
+
+        message:
+          "Voter not found",
       });
     }
 
@@ -410,6 +829,7 @@ exports.deleteVoter = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+
       message:
         "Voter deleted successfully",
     });
@@ -417,7 +837,9 @@ exports.deleteVoter = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };

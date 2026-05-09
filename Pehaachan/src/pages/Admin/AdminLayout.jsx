@@ -1,72 +1,142 @@
-import React, { useState } from "react";
+// src/layouts/AdminLayout.jsx
+
+import React, {
+  useState,
+  useEffect,
+} from "react";
+
 import {
   useNavigate,
   Link,
   useLocation,
   Outlet,
 } from "react-router-dom";
+
 import dashboardStyles from "./AdminDashboard.module.css";
 
 const AdminLayout = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate =
+    useNavigate();
 
-  const [showNotifications, setShowNotifications] =
-    useState(false);
+  const location =
+    useLocation();
 
-  const [showProfileMenu, setShowProfileMenu] =
-    useState(false);
+  const [
+    showNotifications,
+    setShowNotifications,
+  ] = useState(false);
+
+  const [
+    showProfileMenu,
+    setShowProfileMenu,
+  ] = useState(false);
+
+  // =====================================
+  // SEARCH STATE
+  // =====================================
+
+  const [searchInput, setSearchInput] =
+    useState("");
 
   const [searchQuery, setSearchQuery] =
     useState("");
+
+  // =====================================
+  // DEBOUNCE SEARCH
+  // Avoid API call on every keystroke
+  // =====================================
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(
+        searchInput
+      );
+    }, 400);
+
+    return () =>
+      clearTimeout(timer);
+
+  }, [searchInput]);
 
   // =====================================
   // LOGOUT
   // =====================================
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    localStorage.removeItem(
+      "token"
+    );
+
+    localStorage.removeItem(
+      "role"
+    );
 
     navigate("/login");
   };
 
-  const currentPath = location.pathname;
+  const currentPath =
+    location.pathname;
 
   const notifications = [
     "New suspicious voter detected",
+
     "3 manual review requests pending",
+
     "Verification report updated",
   ];
 
   return (
-    <div className={dashboardStyles.pageContainer}>
+    <div
+      className={
+        dashboardStyles.pageContainer
+      }
+    >
       {/* =====================================
           SIDEBAR
       ===================================== */}
 
-      <aside className={dashboardStyles.sidebar}>
-        {/* Sidebar Header */}
-        <div className={dashboardStyles.sidebarHeader}>
+      <aside
+        className={
+          dashboardStyles.sidebar
+        }
+      >
+        {/* HEADER */}
+
+        <div
+          className={
+            dashboardStyles.sidebarHeader
+          }
+        >
           <h1
-            className={dashboardStyles.sidebarTitle}
+            className={
+              dashboardStyles.sidebarTitle
+            }
             style={{
-              color: "var(--primary)",
+              color:
+                "var(--primary)",
+
               fontSize: "1.4rem",
+
               fontWeight: "800",
             }}
           >
             Pehchaan Admin
           </h1>
 
-          {/* Restored Premium Admin Card */}
+          {/* ADMIN CARD */}
+
           <div
             style={{
               padding: "1rem",
+
               background:
                 "linear-gradient(135deg, rgba(0,91,191,0.08), rgba(0,91,191,0.02))",
-              borderRadius: "0.75rem",
+
+              borderRadius:
+                "0.75rem",
+
               marginTop: "1rem",
+
               border:
                 "1px solid rgba(0,91,191,0.08)",
             }}
@@ -74,7 +144,9 @@ const AdminLayout = () => {
             <p
               style={{
                 fontWeight: "700",
+
                 margin: 0,
+
                 fontSize: "0.95rem",
               }}
             >
@@ -84,12 +156,16 @@ const AdminLayout = () => {
             <p
               style={{
                 fontSize: "0.75rem",
-                margin: "0.35rem 0 0 0",
+
+                margin:
+                  "0.35rem 0 0 0",
+
                 color:
                   "var(--on-surface-variant)",
               }}
             >
-              Voter Management Division
+              Voter Management
+              Division
             </p>
           </div>
         </div>
@@ -99,7 +175,9 @@ const AdminLayout = () => {
         ===================================== */}
 
         <nav
-          className={dashboardStyles.nav}
+          className={
+            dashboardStyles.nav
+          }
           style={{
             marginTop: "1.5rem",
           }}
@@ -107,7 +185,8 @@ const AdminLayout = () => {
           <Link
             to="/admin"
             className={`${dashboardStyles.navItem} ${
-              currentPath === "/admin"
+              currentPath ===
+              "/admin"
                 ? dashboardStyles.active
                 : ""
             }`}
@@ -118,7 +197,8 @@ const AdminLayout = () => {
           <Link
             to="/admin/cases"
             className={`${dashboardStyles.navItem} ${
-              currentPath === "/admin/cases"
+              currentPath ===
+              "/admin/cases"
                 ? dashboardStyles.active
                 : ""
             }`}
@@ -129,7 +209,8 @@ const AdminLayout = () => {
           <Link
             to="/admin/reports"
             className={`${dashboardStyles.navItem} ${
-              currentPath === "/admin/reports"
+              currentPath ===
+              "/admin/reports"
                 ? dashboardStyles.active
                 : ""
             }`}
@@ -140,7 +221,8 @@ const AdminLayout = () => {
           <Link
             to="/admin/registry"
             className={`${dashboardStyles.navItem} ${
-              currentPath === "/admin/registry"
+              currentPath ===
+              "/admin/registry"
                 ? dashboardStyles.active
                 : ""
             }`}
@@ -151,7 +233,8 @@ const AdminLayout = () => {
           <Link
             to="/admin/settings"
             className={`${dashboardStyles.navItem} ${
-              currentPath === "/admin/settings"
+              currentPath ===
+              "/admin/settings"
                 ? dashboardStyles.active
                 : ""
             }`}
@@ -160,14 +243,15 @@ const AdminLayout = () => {
           </Link>
         </nav>
 
-        {/* =====================================
-            FOOTER
-        ===================================== */}
+        {/* FOOTER */}
 
         <div
-          className={dashboardStyles.sidebarFooter}
+          className={
+            dashboardStyles.sidebarFooter
+          }
           style={{
             marginTop: "auto",
+
             paddingTop: "2rem",
           }}
         >
@@ -175,15 +259,21 @@ const AdminLayout = () => {
             onClick={handleLogout}
             style={{
               width: "100%",
+
               padding: "0.85rem",
+
               backgroundColor:
                 "transparent",
+
               border:
                 "1px solid var(--outline-variant)",
-              borderRadius: "0.75rem",
+
+              borderRadius:
+                "0.75rem",
+
               cursor: "pointer",
+
               fontWeight: "700",
-              transition: "0.2s ease",
             }}
           >
             Logout
@@ -195,17 +285,30 @@ const AdminLayout = () => {
           TOPBAR
       ===================================== */}
 
-      <header className={dashboardStyles.topbar}>
-        {/* Search */}
+      <header
+        className={
+          dashboardStyles.topbar
+        }
+      >
+        {/* SEARCH */}
+
         <div
           style={{
             display: "flex",
+
             alignItems: "center",
+
             backgroundColor:
               "var(--surface-container-high)",
-            padding: "0.75rem 1rem",
-            borderRadius: "2rem",
+
+            padding:
+              "0.75rem 1rem",
+
+            borderRadius:
+              "2rem",
+
             width: "380px",
+
             border:
               "1px solid var(--outline-variant)",
           }}
@@ -213,8 +316,11 @@ const AdminLayout = () => {
           <span
             className="material-symbols-outlined"
             style={{
-              marginRight: "0.6rem",
+              marginRight:
+                "0.6rem",
+
               fontSize: "1.1rem",
+
               color:
                 "var(--on-surface-variant)",
             }}
@@ -225,18 +331,27 @@ const AdminLayout = () => {
           <input
             type="text"
             placeholder="Search voters, cases, reports..."
-            value={searchQuery}
+
+            value={searchInput}
+
             onChange={(e) =>
-              setSearchQuery(
+              setSearchInput(
                 e.target.value
               )
             }
+
             style={{
               width: "100%",
+
               border: "none",
+
               outline: "none",
-              background: "transparent",
-              fontSize: "0.95rem",
+
+              background:
+                "transparent",
+
+              fontSize:
+                "0.95rem",
             }}
           />
         </div>
@@ -248,14 +363,18 @@ const AdminLayout = () => {
         <div
           style={{
             display: "flex",
+
             alignItems: "center",
+
             gap: "1rem",
           }}
         >
-          {/* Notifications */}
+          {/* NOTIFICATIONS */}
+
           <div
             style={{
-              position: "relative",
+              position:
+                "relative",
             }}
           >
             <button
@@ -263,13 +382,19 @@ const AdminLayout = () => {
                 setShowNotifications(
                   !showNotifications
                 );
-                setShowProfileMenu(false);
+
+                setShowProfileMenu(
+                  false
+                );
               }}
               style={{
                 background:
                   "transparent",
+
                 border: "none",
+
                 cursor: "pointer",
+
                 fontSize: "1.2rem",
               }}
             >
@@ -296,7 +421,10 @@ const AdminLayout = () => {
                   }
                 >
                   {notifications.map(
-                    (item, index) => (
+                    (
+                      item,
+                      index
+                    ) => (
                       <div
                         key={index}
                         className={
@@ -312,10 +440,12 @@ const AdminLayout = () => {
             )}
           </div>
 
-          {/* Profile Menu */}
+          {/* PROFILE */}
+
           <div
             style={{
-              position: "relative",
+              position:
+                "relative",
             }}
           >
             <button
@@ -323,14 +453,21 @@ const AdminLayout = () => {
                 setShowProfileMenu(
                   !showProfileMenu
                 );
-                setShowNotifications(false);
+
+                setShowNotifications(
+                  false
+                );
               }}
               style={{
                 background:
                   "transparent",
+
                 border: "none",
+
                 cursor: "pointer",
+
                 fontWeight: "700",
+
                 fontSize: "0.95rem",
               }}
             >
@@ -352,23 +489,31 @@ const AdminLayout = () => {
                     dashboardStyles.userMenuItem
                   }
                   onClick={() =>
-                    setShowProfileMenu(false)
+                    setShowProfileMenu(
+                      false
+                    )
                   }
                 >
                   My Profile
                 </Link>
 
                 <button
-                  onClick={handleLogout}
+                  onClick={
+                    handleLogout
+                  }
                   className={
                     dashboardStyles.userMenuItem
                   }
                   style={{
                     color: "red",
+
                     border: "none",
+
                     background:
                       "transparent",
-                    cursor: "pointer",
+
+                    cursor:
+                      "pointer",
                   }}
                 >
                   Sign Out
