@@ -13,7 +13,16 @@ const app = express();
 // Middleware
 // =====================================
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://pehchaan-two.vercel.app",
+      "https://pehchaan-bbkd58kwd-aareens-projects.vercel.app",
+    ],
+
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 
