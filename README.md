@@ -80,10 +80,13 @@ Scikit-learn
 
 
 📂 Project Architecture
-Pehchaan/│├── frontend/        # React Frontend Application├── backend/ 
-# Node.js & Express REST APIs├── ml-service/  
-# FastAPI Machine Learning Service├── database/
-# Master Registry & Verification Data└── README.md
+Pehchaan/│├──
+frontend/ # React Frontend Application├──
+backend/ # Node.js & Express REST APIs├──
+ml-service/ # FastAPI Machine Learning Service├─
+database/ # Master Registry & Verification Data└──
+README.md
+
 
 ⚙️ Installation & Setup
 
@@ -100,11 +103,18 @@ cd backendnpm installnpm start
 cd ml-servicepip install -r requirements.txtuvicorn app:app --reload
 
 🔗 API Endpoints
+
 Method  Endpoint        Description 
+
 POST    /auth/register  Register New User
+
 POST    /auth/loginUser Login
+
 POST    /verify         Verify Voter Details
+
 GET     /votersFetch    Verified Voter Records
+
+
 
 🎯 Objectives
 
@@ -141,6 +151,7 @@ Blockchain-based Secure Voting Integration
 
 
 📜 License
+
 This project is developed for educational, research, and learning purposes.
 
 
